@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# 配置文件（包含敏感信息）
+config.example.json
+.env
+
+# 日志
+*.log
+/tmp/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# 虚拟环境
+venv/
+.venv/

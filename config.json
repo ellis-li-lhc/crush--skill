@@ -1,0 +1,18 @@
+{
+  "feishu": {
+    "app_id": "YOUR_FEISHU_APP_ID",
+    "app_secret": "YOUR_FEISHU_APP_SECRET",
+    "webhook_url": "YOUR_WEBHOOK_URL"
+  },
+  "ai": {
+    "type": "api",
+    "provider": "zhipu",
+    "api_key": "YOUR_API_KEY",
+    "model": "YOUR_MODEL_NAME"
+  },
+  "personality": {
+    "path": "./crush-default/personality.md"
+  },
+  "crush_name": "小樱",
+  "current_stage": "陌生"
+}

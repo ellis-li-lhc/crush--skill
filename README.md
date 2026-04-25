@@ -1,11 +1,4 @@
----
-name: crush
-description: "创建一个理想的 AI 恋爱对象，陪你聊天、撒娇、倾诉。无论是深夜emo还是日常闲聊，都有「她/他」在线等你。"
-argument-hint: "[选项]"
-version: "2.0.0"
-user-invocable: true
-allowed-tools: Read, Write, Edit, Bash
----
+
 
 > **初版开发中，性格设定会持续优化。飞书接入配置参考 `config-feishu.md`**
 

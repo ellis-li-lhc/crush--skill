@@ -5,14 +5,18 @@
     "webhook_url": "YOUR_WEBHOOK_URL"
   },
   "ai": {
-    "type": "api",
     "provider": "zhipu",
     "api_key": "YOUR_API_KEY",
-    "model": "YOUR_MODEL_NAME"
+    "model": "YOUR_MODEL_NAME",
+    "timeout_seconds": 30
   },
   "personality": {
     "path": "./crush-default/personality.md"
   },
   "crush_name": "小樱",
-  "current_stage": "陌生"
+  "default_stage": "陌生",
+  "database_path": "./data/crush.db",
+  "host": "0.0.0.0",
+  "port": 5001,
+  "log_level": "INFO"
 }

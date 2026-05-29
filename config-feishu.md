@@ -102,11 +102,16 @@ FEISHU_WEBHOOK_URL=https://xxxx.ngrok-free.dev/webhook  # Step 3.5 获取
 AI_API_KEY=your_api_key                    # 从 AI 服务商获取
 AI_PROVIDER=zhipu                          # 或 deepseek / openai
 AI_MODEL=GLM-4.5-Air                      # 或其他你想要的模型
+AI_TIMEOUT_SECONDS=30
 
 # 恋爱对象配置
 CRUSH_NAME=小樱                            # 你的恋爱对象名字
 CURRENT_STAGE=陌生                          # 当前关系阶段
 PERSONALITY_PATH=./crush-enfp/personality.md  # 性格文件路径
+DATABASE_PATH=./data/crush.db              # 本地状态存储
+APP_HOST=0.0.0.0
+APP_PORT=5001
+LOG_LEVEL=INFO
 ```
 
 ### 4.3 配置来源说明
@@ -120,6 +125,7 @@ PERSONALITY_PATH=./crush-enfp/personality.md  # 性格文件路径
 | `AI_MODEL` | 你的 AI 模型名称，如 `GLM-4.5-Air`、`deepseek-chat` 等 |
 
 > **安全提醒**：`.env` 文件包含敏感凭证，请勿提交到 git 或公开分享。已配置 `.gitignore` 忽略此文件。
+> 服务启动时会自动读取项目根目录下的 `.env`，不需要手动 `export`。
 
 ---
 
@@ -163,10 +169,6 @@ pip install -r requirements.txt
 ## Step 7：启动机器人
 
 ```bash
-# 设置环境变量
-export $(cat .env | xargs)
-
-# 启动
 python3 tools/run_feishu.py
 ```
 
@@ -218,11 +220,14 @@ A:
 ### Q: 如何更换恋爱对象？
 A:
 1. 修改 `.env` 中的 `CRUSH_NAME`
-2. 修改 `personality` 路径指向新的 personality.md
+2. 修改 `PERSONALITY_PATH` 指向新的 personality.md
 3. 重启机器人
 
 ### Q: 需要一直开着电脑吗？
 A: 是的，需要运行 `run_feishu.py`。可以部署到服务器实现24小时运行。
+
+### Q: 多个用户会串号吗？
+A: 现在会按飞书 `open_id` 分别保存状态，默认存到 `./data/crush.db`，不同用户的最近对话和阶段会隔离。
 
 ---
 

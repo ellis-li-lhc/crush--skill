@@ -1,74 +1,69 @@
 # Crush.skill
 
-一个可以放在飞书里的 AI 恋爱对象项目。
+Crush.skill 是一个优先适配飞书机器人的 AI 陪伴原型。它不只是把消息转发给大模型，而是围绕 persona、关系阶段、长期记忆和多用户状态做了一层轻量应用逻辑。
 
-它不是简单的聊天转发脚本，而是一个带有：
-- 人格模板
-- 关系阶段推进
-- 用户独立状态
-- 角色创建流程
-- 可扩展风格库
+> 飞书接入、Webhook、权限和事件订阅配置见 [config-feishu.md](./config-feishu.md)。
 
-的轻量陪伴型机器人原型。
+## 核心能力
 
-> 当前优先适配飞书机器人。飞书接入细节见 [config-feishu.md](./config-feishu.md)。
+- **飞书私聊机器人**：接收飞书文本消息，调用模型生成回复，再发送回用户。
+- **用户独立状态**：每个飞书用户单独保存 persona、关系阶段、好感度、对话轮数、最近对话和长期记忆。
+- **角色创建流程**：用户可在聊天里通过 `/crush` 逐步创建自己的恋爱对象设定。
+- **风格化 persona**：内置多种恋爱风格模板，影响语言、关心方式、吃醋表现、冲突反应和和好方式。
+- **关系阶段推进**：根据互动内容累计好感度，并在阶段变化时写入阶段事件。
+- **结构化长期记忆**：从用户消息中提取偏好、称呼、近期安排、情绪线索和边界提醒。
+- **多模型接入**：支持 `zhipu`、`deepseek`、`openai` 风格的标准 `chat completions` 接口。
 
----
+## 适用场景
 
-## 项目亮点
-
-- 支持飞书私聊机器人接入，消息链路清晰
-- 每个用户拥有独立的关系阶段、好感度和最近记忆
-- 支持在聊天中通过 `/crush` 一步步创建自己的专属角色
-- 支持把生成的人格绑定到当前用户，不再共用单一默认设定
-- 恋爱风格已经抽成独立风格库，便于继续扩展更多角色类型
-- 支持 `zhipu`、`deepseek`、`openai` 风格的标准 `chat completions` 接口
-
----
-
-## 适合做什么
-
-- 深夜陪伴型聊天机器人
-- 情绪陪伴 / 轻社交练习
+- 飞书内的 AI 娱乐机器人
 - 角色扮演式 AI Companion 原型
-- 飞书内的 AI 助手 / 娱乐型 Bot
+- 情绪陪伴和轻社交练习
 - 多 persona 聊天体验实验
+- 带状态机的聊天应用 demo
 
----
+## 工作流
 
-## 当前能力
+```text
+飞书用户
+  -> 飞书事件回调
+  -> Flask Webhook
+  -> 命令处理 / 状态读取
+  -> persona + 记忆 + 阶段规则组装 prompt
+  -> 大模型生成回复
+  -> 更新关系状态和长期记忆
+  -> 飞书机器人回复用户
+```
 
-### 1. 角色创建
+## 当前能力详情
 
-用户可以直接在飞书里发 `/crush` 进入创建流程，然后逐步回答：
-- 名字
-- 性别
-- 年龄段
-- MBTI
-- 恋爱风格
-- 主动度
-- 回复节奏
-- 关心方式
-- 浪漫方式
-- 吃醋表现
-- 口头禅 / 表情 / 称呼 / 爱好
+### 角色创建
+
+用户发送 `/crush` 后，会逐步录入：
+
+- 名字、性别、年龄段
+- 用户 MBTI 和目标 MBTI
+- 恋爱风格、主动度、回复节奏
+- 关心方式、浪漫方式、吃醋表现
+- 口头禅、表情、称呼、小爱好
 - 初始关系阶段
 
-确认后会自动生成独立的 `personality.md`，并绑定到当前用户。
+确认后会生成独立的 `personality.md`，并绑定到当前飞书用户。
 
-### 2. 关系推进
+### 关系阶段
 
-项目内置基础关系状态机：
+内置阶段顺序：
 
 ```text
 陌生 -> 认识 -> 暧昧 -> 表白 -> 恋爱 -> 磨合 -> 长期
 ```
 
-机器人会根据互动内容累计好感度，并自动推进关系阶段。
+每个阶段都有独立回应指导。关系升级时会写入阶段事件，例如从“陌生”进入“认识”后，机器人会更主动记住用户偏好，但仍保持边界感。
 
-### 3. 风格差异
+### 风格模板
 
-当前已经内置多种风格模板：
+当前内置风格：
+
 - 温柔粘人
 - 高冷傲娇
 - 热情主动
@@ -78,28 +73,19 @@
 - 幽默风趣
 - 被动慢热
 
-这些风格不是只换标签，而是会影响：
-- 日常说话方式
-- 表达喜欢的方式
-- 约会偏好
-- 联系频率
-- 吃醋方式
-- 冲突反应
-- 和好方式
+风格模板集中维护在 [crush_service/style_library.py](./crush_service/style_library.py)。
 
-### 4. 用户独立状态
+### 长期记忆
 
-每个飞书用户会单独保存：
-- 当前 persona
-- 当前关系阶段
-- 当前好感度
-- 累计对话轮数
-- 最近对话
-- 简单长期记忆
+当前记忆系统会从用户消息中提取并保存：
 
-状态默认写入本地 SQLite：`./data/crush.db`
+- 偏好：例如喜欢的地方、食物、内容
+- 称呼：例如用户希望被怎么叫
+- 近期安排：例如考试、面试、加班、约会
+- 情绪线索：例如累、焦虑、开心、难过
+- 边界提醒：例如不喜欢、害怕、明确提出不要的事
 
----
+状态默认写入本地 SQLite：`./data/crush.db`。
 
 ## 常用命令
 
@@ -112,8 +98,6 @@
 | `/crush-status` | 查看阶段、好感度、对话轮数 |
 | `/crush-set-stage 暧昧` | 手动调整关系阶段 |
 | `/crush-persona` | 查看当前绑定角色 |
-
----
 
 ## 快速开始
 
@@ -131,95 +115,89 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-然后填写：
-- `FEISHU_APP_ID`
-- `FEISHU_APP_SECRET`
-- `FEISHU_WEBHOOK_URL`
-- `AI_API_KEY`
-- `AI_PROVIDER`
-- `AI_MODEL`
+填写必要配置：
+
+```dotenv
+FEISHU_APP_ID=your_feishu_app_id
+FEISHU_APP_SECRET=your_feishu_app_secret
+FEISHU_WEBHOOK_URL=https://your-domain.example/webhook
+
+AI_API_KEY=your_api_key
+AI_PROVIDER=zhipu
+AI_MODEL=GLM-4.5-Air
+```
 
 推荐优先使用 `.env`，项目启动时会自动读取。
 
 ### 3. 启动服务
 
 ```bash
-python tools/run_feishu.py
+python3 tools/run_feishu.py
 ```
 
 默认监听：
+
 - `APP_HOST=0.0.0.0`
 - `APP_PORT=5001`
 
-### 4. 接入飞书
+### 4. 配置飞书
 
-飞书应用配置、Webhook、权限和事件订阅说明见：
-
-- [config-feishu.md](./config-feishu.md)
-
----
+按照 [config-feishu.md](./config-feishu.md) 创建飞书应用、开启机器人能力、配置事件订阅和 Webhook。
 
 ## 项目结构
 
 ```text
-crush-default/           默认人格设定
-crush_service/           服务核心模块
-personas/                按用户生成的角色文件
-prompts/                 创建流程与人格模板参考
-tests/                   基础单元测试
-tools/run_feishu.py      启动入口
-tools/mbti_lib.py        MBTI 匹配逻辑
+crush-default/             默认人格设定
+crush_service/             服务核心模块
+  app.py                   Flask 路由与消息主流程
+  ai_client.py             大模型调用封装
+  commands.py              聊天命令处理
+  config.py                .env / config.json 配置加载
+  feishu_client.py         飞书鉴权与发消息
+  memory.py                结构化长期记忆提取
+  persona.py               persona 文件加载
+  persona_builder.py       创建器与 persona 文本生成
+  prompting.py             系统提示词组装
+  relationship.py          关系阶段、好感度和阶段事件
+  state_store.py           SQLite 状态存储
+  style_library.py         恋爱风格库
+personas/                  按用户生成的角色文件
+prompts/                   创建流程与人格模板参考
+tests/                     基础单元测试
+tools/run_feishu.py        启动入口
+tools/mbti_lib.py          MBTI 匹配逻辑
 ```
 
-### `crush_service/` 模块说明
+## 测试
 
-- `app.py`：Flask 路由与消息主流程
-- `config.py`：加载 `.env` / `config.json`
-- `ai_client.py`：统一模型调用
-- `feishu_client.py`：飞书鉴权与发消息
-- `persona.py`：加载人格文件
-- `persona_builder.py`：创建器与 persona 文本生成
-- `style_library.py`：风格库，集中维护风格差异
-- `prompting.py`：系统提示词组装
-- `relationship.py`：关系阶段与好感度逻辑
-- `state_store.py`：SQLite 状态存储
-- `commands.py`：聊天命令处理
+```bash
+python3 -m unittest discover tests
+```
 
----
+当前测试覆盖配置加载、prompt 组装、关系推进、记忆提取、persona 创建和风格差异。
 
 ## 当前状态
 
-目前这个仓库更接近一个“可用原型”，已经具备：
-- 基础飞书消息收发
-- 基础多用户状态隔离
-- 人格创建与绑定
-- 风格化 persona 输出
-- 关系阶段推进
-- 结构化长期记忆：偏好、称呼、近期安排、情绪线索和边界提醒
-- 阶段事件提示：阶段变化时会写入关系事件，并在回应中使用阶段指导
+这是一个可运行的原型项目，已经具备飞书消息收发、多用户状态隔离、角色创建、风格化 persona、关系阶段推进、结构化记忆和阶段事件提示。
 
-还可以继续增强的方向包括：
+后续可以继续增强：
+
 - 基于模型的长期记忆总结与遗忘策略
 - 更丰富的节日、纪念日和冲突修复事件
 - 多渠道接入层
-- 更完整的测试覆盖
 - 更强的安全边界和危机场景处理
+- 更完整的线上部署和观测能力
 
----
+## 安全边界
 
-## 注意事项
+- 这是 AI 陪伴项目，不是真实人类关系。
+- 不应诱导用户与现实世界隔离或形成极端依赖。
+- 如遇严重情绪困扰、自伤或伤人风险，应建议用户尽快联系现实中的专业支持与身边可信任的人。
+- 不要把 `.env`、API Key、飞书 App Secret 等敏感信息提交到仓库。
 
-- 这是 AI 陪伴项目，不是真实人类关系
-- 如遇严重情绪困扰，请寻求现实中的专业帮助
-- 请不要把敏感密钥提交到仓库
+## 开发提示
 
----
-
-## 开发说明
-
-- 默认人格文件在 [crush-default/personality.md](./crush-default/personality.md)
-- 用户生成的人格文件会落在 `personas/`
-- 本地状态数据库默认是 `./data/crush.db`
-- 恋爱风格库在 [crush_service/style_library.py](./crush_service/style_library.py)
-
-如果你想继续扩展风格，优先改 `style_library.py`，不要直接把新风格硬写进主流程。
+- 默认人格文件在 [crush-default/personality.md](./crush-default/personality.md)。
+- 用户生成的人格文件会落在 `personas/`。
+- 本地状态数据库默认是 `./data/crush.db`。
+- 扩展恋爱风格时优先修改 [crush_service/style_library.py](./crush_service/style_library.py)，不要把新风格硬写进主流程。

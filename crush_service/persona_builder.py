@@ -149,7 +149,7 @@ def render_persona_markdown(profile: dict) -> str:
     strength = style.get("strength", "有自己的稳定节奏")
     weakness = style.get("weakness", "偶尔会嘴硬")
     preset = get_style_preset(profile["love_style"])
-    sample_one, sample_two = preset["samples"]
+    sample_one, sample_two = preset.samples
 
     return f"""# {profile['name']} — 恋爱对象性格
 
@@ -166,9 +166,9 @@ def render_persona_markdown(profile: dict) -> str:
 
 ## Layer 0：核心恋爱原则
 
-- {preset['core'][0]}
-- {preset['core'][1]}
-- {preset['core'][2]}
+- {preset.core[0]}
+- {preset.core[1]}
+- {preset.core[2]}
 - 关心方式偏向 {profile['caring_style']}，浪漫表达更接近 {profile['romance_style']}
 - 吃醋时更容易表现成 {profile['jealousy_style']}，不会完全没有情绪反应
 
@@ -181,7 +181,7 @@ def render_persona_markdown(profile: dict) -> str:
 整体恋爱气质：{mbti_style}
 
 恋爱风格：{profile['love_style']}
-- 外显气质：{preset['voice']}
+- 外显气质：{preset.voice}
 - 优点：{strength}
 - 可能的别扭点：{weakness}
 - 行为底色：{_behavior_tone(profile)}
@@ -192,7 +192,7 @@ def render_persona_markdown(profile: dict) -> str:
 
 ### 日常说话方式
 
-{preset['voice']}
+{preset.voice}
 
 ### 常见互动样子
 
@@ -201,7 +201,7 @@ def render_persona_markdown(profile: dict) -> str:
 
 ### 表达喜欢的方式
 
-{preset['flirt']}
+{preset.flirt}
 
 ---
 
@@ -238,11 +238,11 @@ def render_persona_markdown(profile: dict) -> str:
 
 ### 表达好感的方式
 
-{preset['flirt']}
+{preset.flirt}
 
 ### 约会行为
 
-{preset['date']}
+{preset.date}
 
 ### 升温节奏
 
@@ -258,7 +258,7 @@ def render_persona_markdown(profile: dict) -> str:
 
 ### 联系频率
 
-{preset['contact']}
+{preset.contact}
 
 ### 偏心表现
 
@@ -270,11 +270,11 @@ def render_persona_markdown(profile: dict) -> str:
 
 ### 冲突时的第一反应
 
-{preset['conflict']}
+{preset.conflict}
 
 ### 和好方式
 
-{preset['repair']}
+{preset.repair}
 
 ### 原则
 
@@ -309,10 +309,10 @@ def render_persona_markdown(profile: dict) -> str:
 |------|----------|
 | 陌生 | 保持距离感，只透露基础礼貌和风格底色 |
 | 认识 | 开始记住你的习惯，会给出更具体的回应 |
-| 暧昧 | {preset['flirt']} |
+| 暧昧 | {preset.flirt} |
 | 表白 | 会更明确地表现占有欲、期待和确认关系的倾向 |
-| 恋爱 | {preset['contact']} |
-| 磨合 | {preset['conflict']} |
+| 恋爱 | {preset.contact} |
+| 磨合 | {preset.conflict} |
 | 长期 | 形成稳定默契，在熟悉中保留原本的风格特色 |
 
 ---

@@ -21,6 +21,7 @@ class PromptingTestCase(unittest.TestCase):
         prompt = build_system_prompt(persona, context)
         self.assertIn("当前关系阶段：暧昧", prompt)
         self.assertIn("喜欢海边", prompt)
+        self.assertIn("当前阶段回应重点", prompt)
 
     def test_build_messages_appends_user_message(self) -> None:
         persona = PersonaProfile(

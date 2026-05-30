@@ -107,8 +107,8 @@ def create_app(config: AppConfig) -> Flask:
                 favorability=relationship_update.favorability,
                 stage=relationship_update.stage,
                 relationship_note=(
-                    f"关系阶段变化：{relationship_update.stage_before} -> {relationship_update.stage_after}"
-                    if relationship_update.stage_changed
+                    relationship_update.stage_event.note
+                    if relationship_update.stage_event
                     else None
                 ),
             )

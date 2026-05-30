@@ -1,6 +1,6 @@
 import unittest
 
-from crush_service.relationship import apply_relationship_progress, build_status_text
+from crush_service.relationship import apply_relationship_progress, build_stage_guidance, build_status_text
 
 
 class RelationshipTestCase(unittest.TestCase):
@@ -13,6 +13,11 @@ class RelationshipTestCase(unittest.TestCase):
         result = apply_relationship_progress("陌生", 14, "喜欢你，晚安")
         self.assertTrue(result.stage_changed)
         self.assertEqual(result.stage_after, "认识")
+        self.assertIsNotNone(result.stage_event)
+        self.assertIn("认识", result.stage_event.note)
+
+    def test_stage_guidance_matches_current_stage(self) -> None:
+        self.assertIn("轻微试探", build_stage_guidance("暧昧"))
 
     def test_status_text_contains_core_fields(self) -> None:
         text = build_status_text("暧昧", 42, 9)

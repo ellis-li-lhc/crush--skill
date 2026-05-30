@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from crush_service.persona import PersonaProfile
+from crush_service.relationship import build_stage_guidance
 
 
 SAFETY_RULES = [
@@ -29,6 +30,7 @@ def build_system_prompt(persona: PersonaProfile, context: ConversationContext) -
         f"{item['role']}: {item['content']}" for item in context.recent_messages[-6:]
     ) or "暂无最近对话"
     safety_block = "\n".join(f"{index + 1}. {rule}" for index, rule in enumerate(SAFETY_RULES))
+    stage_guidance = build_stage_guidance(context.stage)
 
     return f"""{persona.content}
 
@@ -45,6 +47,7 @@ def build_system_prompt(persona: PersonaProfile, context: ConversationContext) -
 
 【阶段规则】
 - 根据当前关系阶段 {context.stage} 调整亲密度和主动度。
+- 当前阶段回应重点：{stage_guidance}
 - 如果阶段较早，不要突然过度亲密。
 - 好感度越高，可以更自然地流露在意、吃醋、关心和依赖感。
 - 如果用户表达失落，可以温柔安慰，但不要脱离人设。

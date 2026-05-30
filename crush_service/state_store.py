@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from crush_service.memory import extract_memory_notes, merge_memory_notes
+
 
 @dataclass
 class UserState:
@@ -157,13 +159,10 @@ class StateStore:
         if stage is not None:
             state.stage = stage
 
-        if user_message.strip():
-            summary = f"用户最近提到：{user_message.strip()[:60]}"
-            if not state.memory_notes or state.memory_notes[-1] != summary:
-                state.memory_notes.append(summary)
+        new_memory_notes = extract_memory_notes(user_message)
         if relationship_note:
-            state.memory_notes.append(relationship_note)
-        state.memory_notes = state.memory_notes[-10:]
+            new_memory_notes.append(relationship_note)
+        state.memory_notes = merge_memory_notes(state.memory_notes, new_memory_notes)
 
         self._save_state(state)
         return state
